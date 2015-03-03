@@ -459,20 +459,17 @@ void NET_init_len_info(uint8_t *buf) {
 uint16_t NET_fill_tcp_data_p(uint8_t *buf,
                              uint16_t pos,
                              const char *progmem_s) {
-#if 0
   char c;
   /* Fill in tcp data at position pos. */
   /* With no options the data starts after the checksum + 2 more bytes
    * (urgent ptr)
    */
-  while ((c = pgm_read_byte(progmem_s++))) {
+  while ((c = *progmem_s)) {
     buf[TCP_CHECKSUM_L_P + 3 + pos] = c;
     pos++;
+    progmem_s++;
   }
   return pos;
-#else
-  return 0;
-#endif
 }
 
 /* fill in tcp data at position pos. pos=0 means start of
@@ -529,7 +526,7 @@ void NET_make_tcp_ack_from_any(uint8_t *buf) {
  * This is because this function will NOT modify the eth/ip/tcp header except
  * for length and checksum.
  */
-void make_tcp_ack_with_data(uint8_t *buf, uint16_t dlen) {
+void NET_make_tcp_ack_with_data(uint8_t *buf, uint16_t dlen) {
   uint16_t j;
   /* Fill the header. */
   /* This code requires that we send only one data packet
