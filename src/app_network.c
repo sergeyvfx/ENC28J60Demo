@@ -36,6 +36,16 @@ static unsigned char buf[BUFFER_SIZE + 1];
 #define STR_BUFFER_SIZE 22
 static char strbuf[STR_BUFFER_SIZE + 1];
 
+#if defined(__18F4550)
+#  define LED0_IO LATDbits.LD0
+#  define LED1_IO LATDbits.LD1
+#  define LED2_IO LATDbits.LD2
+#elif defined(__18F2550)
+#  define LED0_IO LATCbits.LC1
+#  define LED1_IO LATCbits.LC2
+#  define LED2_IO LATCbits.LC6
+#endif
+
 /* The returned value is stored in the global var strbuf. */
 static uint8_t find_key_val(char *str, char *key) {
   uint8_t found = 0;
@@ -110,9 +120,9 @@ static uint16_t print_webpage(uint8_t *buf, uint8_t on_off) {
 
 void APP_network_init(void) {
   uint8_t a;
-  LATDbits.LD0 = 0;
-  LATDbits.LD1 = 1;
-  LATDbits.LD2 = 0;
+  LED0_IO = 0;
+  LED1_IO = 1;
+  LED2_IO = 0;
 
   LATBbits.LB4 = 0;  /* Reset the module. */
   LATBbits.LB5 = 0;
@@ -126,7 +136,7 @@ void APP_network_init(void) {
   ENC28J60_ClkOut(2);
   __delay_ms(10);
 
-  LATDbits.LD0 = 1;
+  LED0_IO = 1;
 
   /* Debug blink: keep both LEDs on for a bit. */
   ENC28J60_PhyWrite(PHLCON, 0x880);
@@ -134,7 +144,7 @@ void APP_network_init(void) {
 
   /* LEDA=links status, LEDB=receive/transmit. */
   ENC28J60_PhyWrite(PHLCON, 0x476);
-  LATDbits.LD2 = 1;
+  LED2_IO = 1;
   NET_init(my_macaddr, my_ip, 80);
 }
 
@@ -204,10 +214,10 @@ void APP_network_loop(void) {
         cmd = analyse_cmd((char *)&(buf[dat_p + 5]));
         if (cmd == 2) {
           on_off = 1;
-          LATDbits.LD2 = 1;
+          LED2_IO = 1;
         } else if (cmd == 3) {
           on_off = 0;
-          LATDbits.LD2 = 0;
+          LED2_IO = 0;
         }
         plen = print_webpage(buf, on_off);
 SENDTCP:

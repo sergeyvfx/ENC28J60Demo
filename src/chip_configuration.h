@@ -26,8 +26,11 @@
 #if defined(__18F4550)
 #  include <pic18.h>
 #  include <pic18f4550.h>
+#elif defined(__18F2550)
+#  include <pic18.h>
+#  include <pic18f2550.h>
 #else
-#  error "This firmware only was tested on PIC18F4550 microcontrollers."
+#  error "This firmware only was tested on PIC18F4550 and PIC2550 microcontrollers."
 #endif
 
 #define _XTAL_FREQ 20000000
@@ -73,7 +76,7 @@
 /* #pragma config EBTR3    = OFF */
 #pragma config EBTRB    = OFF
 
-#if defined(__18F4550)
+#if defined(__18F4550) || defined(__18F2550)
 #  define SSP_CS_TRIS    TRISAbits.TRISA5
 #  define SSP_CS_IO      LATAbits.LA5
 #  define SSP_SDI_TRIS   TRISBbits.TRISB0
