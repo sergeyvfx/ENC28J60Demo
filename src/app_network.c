@@ -42,7 +42,7 @@ static uint8_t find_key_val(char *str, char *key) {
   uint8_t i = 0;
   char *kp;
   kp = key;
-  while (*str &&  *str != ' ' && found == 0){
+  while (*str &&  *str != ' ' && found == 0) {
     if (*str == *kp) {
       kp++;
       if (*kp == '\0') {
@@ -110,13 +110,17 @@ static uint16_t print_webpage(uint8_t *buf, uint8_t on_off) {
 
 void APP_network_init(void) {
   uint8_t a;
-  LATDbits.LD0 = 0; LATDbits.LD1 = 1; LATDbits.LD2 = 0;
+  LATDbits.LD0 = 0;
+  LATDbits.LD1 = 1;
+  LATDbits.LD2 = 0;
 
-  LATBbits.LB4 = 0; LATBbits.LB5 = 0;  /* Reset the module. */
+  LATBbits.LB4 = 0;  /* Reset the module. */
+  LATBbits.LB5 = 0;
   __delay_ms(10);
 
   SPI_Init();
-  LATBbits.LB4 = 1; LATBbits.LB5 = 1;  /* Resume the module. */
+  LATBbits.LB4 = 1;  /* Resume the module. */
+  LATBbits.LB5 = 1;
 
   ENC28J60_Init(my_macaddr);
   ENC28J60_ClkOut(2);
@@ -153,7 +157,7 @@ void APP_network_loop(void) {
     }
 
     /* Check if ip packets are for us. */
-    if (NET_eth_type_is_ip_and_my_ip(buf,plen) == 0) {
+    if (NET_eth_type_is_ip_and_my_ip(buf, plen) == 0) {
       return;
     }
 
@@ -201,8 +205,7 @@ void APP_network_loop(void) {
         if (cmd == 2) {
           on_off = 1;
           LATDbits.LD2 = 1;
-        }
-        else if (cmd == 3) {
+        } else if (cmd == 3) {
           on_off = 0;
           LATDbits.LD2 = 0;
         }

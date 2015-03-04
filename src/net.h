@@ -206,7 +206,7 @@ uint16_t NET_fill_tcp_data(uint8_t *buf,
 void NET_make_tcp_ack_from_any(uint8_t *buf);
 void NET_make_tcp_ack_with_data(uint8_t *buf, uint16_t len);
 void NET_make_arp_request(uint8_t *buf, uint8_t *server_ip);
-uint8_t NET_arp_packet_is_myreply_arp (uint8_t *buf);
+uint8_t NET_arp_packet_is_myreply_arp(uint8_t *buf);
 void NET_tcp_client_send_packet(uint8_t *buf,
                                 uint16_t dest_port,
                                 uint16_t src_port,

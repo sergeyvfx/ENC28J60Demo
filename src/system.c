@@ -24,8 +24,6 @@
  */
 
 #include "system.h"
-
-#include "system.h"
 #include "chip_configuration.h"
 #include "app_network.h"
 
@@ -76,8 +74,7 @@ void SYSTEM_Tasks(void) {
 }
 
 #if defined(__XC8)
-void interrupt SYS_InterruptHigh(void)
-{
+void interrupt SYS_InterruptHigh(void) {
 #  if defined(USB_INTERRUPT)
     USBDeviceTasks();
 #  endif
@@ -127,7 +124,7 @@ void Remapped_High_ISR(void) {
   _asm goto YourHighPriorityISRCode _endasm
 }
 #  pragma code REMAPPED_LOW_INTERRUPT_VECTOR = REMAPPED_LOW_INTERRUPT_VECTOR_ADDRESS
-void Remapped_Low_ISR (void) {
+void Remapped_Low_ISR(void) {
   _asm goto YourLowPriorityISRCode _endasm
 }
 

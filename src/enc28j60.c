@@ -86,7 +86,7 @@ void ENC28J60_PhyWrite(uint8_t addr, uint16_t data) {
   ENC28J60_Write(MIWRL, data);
   ENC28J60_Write(MIWRH, data >> 8);
   /* Wait until the PHY write completes. */
-  while(ENC28J60_Read(MISTAT) & MISTAT_BUSY) {
+  while (ENC28J60_Read(MISTAT) & MISTAT_BUSY) {
     __delay_us(15);
   }
 }
@@ -100,7 +100,7 @@ void ENC28J60_Init(uint8_t *macaddr) {
   ENC28J60_WriteOp(ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);
   /* check CLKRDY bit to see if reset is complete */
   __delay_ms(10);
-  while(!(ENC28J60_Read(ESTAT) & ESTAT_CLKRDY));
+  while (!(ENC28J60_Read(ESTAT) & ESTAT_CLKRDY));
 
   /* ** Do bank 0 stuff ** */
   /* Initialize receive buffer. 16-bit transfers, must write low byte first. */
@@ -191,7 +191,7 @@ void ENC28J60_ReadBuffer(uint16_t len, uint8_t *data) {
   SSPBUF = ENC28J60_READ_BUF_MEM;
   while (!PIR1bits.SSPIF);
   PIR1bits.SSPIF = 0;
-  while(len) {
+  while (len) {
     len--;
     /* Read data. */
     SSPBUF = 0;
@@ -214,7 +214,7 @@ uint16_t ENC28J60_PacketReceive(uint16_t maxlen, uint8_t *packet) {
   uint16_t rxstat;
   uint16_t len;
   /* Check if a packet has been received and buffered. */
-  //if(!(enc28j60Read(EIR) & EIR_PKTIF) ) {
+  // if(!(enc28j60Read(EIR) & EIR_PKTIF) ) {
   /* The above does not work. See Rev. B4 Silicon Errata point 6. */
   if (ENC28J60_Read(EPKTCNT) ==0) {
     return 0;
@@ -277,11 +277,11 @@ void ENC28J60_WriteBuffer(uint16_t len, uint8_t *data) {
 
 void ENC28J60_PacketSend(uint16_t len, uint8_t *packet) {
   /* Set the write pointer to start of transmit buffer area. */
-  ENC28J60_Write(EWRPTL, TXSTART_INIT&0xFF);
-  ENC28J60_Write(EWRPTH, TXSTART_INIT>>8);
+  ENC28J60_Write(EWRPTL, TXSTART_INIT & 0xff);
+  ENC28J60_Write(EWRPTH, TXSTART_INIT >> 8);
   /* Set the TXND pointer to correspond to the packet size given. */
-  ENC28J60_Write(ETXNDL, (TXSTART_INIT+len)&0xFF);
-  ENC28J60_Write(ETXNDH, (TXSTART_INIT+len)>>8);
+  ENC28J60_Write(ETXNDL, (TXSTART_INIT + len) & 0xff);
+  ENC28J60_Write(ETXNDH, (TXSTART_INIT + len) >> 8);
   /* Write per-packet control byte (0x00 means use macon3 settings). */
   ENC28J60_WriteOp(ENC28J60_WRITE_BUF_MEM, 0, 0x00);
   /* Copy the packet into the transmit buffer. */
@@ -289,7 +289,7 @@ void ENC28J60_PacketSend(uint16_t len, uint8_t *packet) {
   /* Send the contents of the transmit buffer onto the network. */
   ENC28J60_WriteOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRTS);
   /* Reset the transmit logic problem. See Rev. B4 Silicon Errata point 12. */
-  if( (ENC28J60_Read(EIR) & EIR_TXERIF) ){
+  if ((ENC28J60_Read(EIR) & EIR_TXERIF)) {
     ENC28J60_WriteOp(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_TXRTS);
   }
 }

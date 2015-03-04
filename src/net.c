@@ -78,43 +78,41 @@ uint16_t checksum(uint8_t *buf, uint16_t len, uint8_t type) {
    *      1 = udp
    *      2 = tcp
    */
-   uint32_t sum = 0;
+  uint32_t sum = 0;
 
-   if (type == CHECKSUM_TYPE_IP) {
-     /* pass */
-   }
-   else if (type == CHECKSUM_TYPE_UDP) {
-     sum += IP_PROTO_UDP_V;
-     /* The length here is the length of udp (data+header len)
-      * =length given to this function - (IP.scr+IP.dst length)
-      */
-     sum += len - 8;  /* = real tcp len. */
-   }
-   else if(type == CHECKSUM_TYPE_TCP) {
-     sum += IP_PROTO_TCP_V;
-     /* The length here is the length of tcp (data+header len)
-      * =length given to this function - (IP.scr+IP.dst length)
-      */
-     sum += len - 8;  /* = real tcp len. */
-   }
-   /* Build the sum of 16bit words. */
-   while (len > 1) {
-     sum += 0xFFFF & (*buf << 8 | *(buf + 1));
-     buf += 2;
-     len -= 2;
-   }
-   /* If there is a byte left then add it (padded with zero). */
-   if (len) {
-     sum += (0xFF & *buf) << 8;
-   }
-   /* Now calculate the sum over the bytes in the sum
-    * until the result is only 16bit long.
-    */
-   while (sum >> 16) {
-     sum = (sum & 0xFFFF) + (sum >> 16);
-   }
-   /* Build 1's complement. */
-   return (uint16_t)sum ^ 0xffff;
+  if (type == CHECKSUM_TYPE_IP) {
+    /* pass */
+  } else if (type == CHECKSUM_TYPE_UDP) {
+    sum += IP_PROTO_UDP_V;
+    /* The length here is the length of udp (data+header len)
+     * =length given to this function - (IP.scr+IP.dst length)
+     */
+    sum += len - 8;  /* = real tcp len. */
+  } else if (type == CHECKSUM_TYPE_TCP) {
+    sum += IP_PROTO_TCP_V;
+    /* The length here is the length of tcp (data+header len)
+     * =length given to this function - (IP.scr+IP.dst length)
+     */
+    sum += len - 8;  /* = real tcp len. */
+  }
+  /* Build the sum of 16bit words. */
+  while (len > 1) {
+    sum += 0xffff & (*buf << 8 | *(buf + 1));
+    buf += 2;
+    len -= 2;
+  }
+  /* If there is a byte left then add it (padded with zero). */
+  if (len) {
+    sum += (0xff & *buf) << 8;
+  }
+  /* Now calculate the sum over the bytes in the sum
+   * until the result is only 16bit long.
+   */
+  while (sum >> 16) {
+    sum = (sum & 0xffff) + (sum >> 16);
+  }
+  /* Build 1's complement. */
+  return (uint16_t)sum ^ 0xffff;
 }
 
 /* You must call this function once before you use any of the other functions. */
@@ -137,8 +135,8 @@ uint8_t NET_eth_type_is_arp_and_my_ip(uint8_t *buf, uint16_t len) {
   if (len < 41) {
     return 0;
   }
-  if(buf[ETH_TYPE_H_P] != ETHTYPE_ARP_H_V ||
-     buf[ETH_TYPE_L_P] != ETHTYPE_ARP_L_V)
+  if (buf[ETH_TYPE_H_P] != ETHTYPE_ARP_H_V ||
+      buf[ETH_TYPE_L_P] != ETHTYPE_ARP_L_V)
   {
     return 0;
   }
@@ -157,8 +155,8 @@ uint8_t NET_eth_type_is_ip_and_my_ip(uint8_t *buf, uint16_t len) {
   if (len < 42) {
     return 0;
   }
-  if(buf[ETH_TYPE_H_P] != ETHTYPE_IP_H_V ||
-     buf[ETH_TYPE_L_P] != ETHTYPE_IP_L_V)
+  if (buf[ETH_TYPE_H_P] != ETHTYPE_IP_H_V ||
+      buf[ETH_TYPE_L_P] != ETHTYPE_IP_L_V)
   {
     return 0;
   }
@@ -167,7 +165,7 @@ uint8_t NET_eth_type_is_ip_and_my_ip(uint8_t *buf, uint16_t len) {
     return 0;
   }
   while (i < 4) {
-    if(buf[IP_DST_P + i] != ipaddr[i]) {
+    if (buf[IP_DST_P + i] != ipaddr[i]) {
       return 0;
     }
     i++;
@@ -318,7 +316,7 @@ static void make_tcphead(uint8_t *buf,
    * It is calculated in units of 4 bytes.
    * E.g 24 bytes: 24/4=6 => 0x60=header len field
    */
-  //buf[TCP_HEADER_LEN_P]=(((TCP_HEADER_LEN_PLAIN+4)/4)) <<4; // 0x60
+  // buf[TCP_HEADER_LEN_P]=(((TCP_HEADER_LEN_PLAIN+4)/4)) <<4; // 0x60
   if (mss) {
     /* The only option we set is MSS to 1408 (1408 in hex is 0x580). */
     buf[TCP_OPTIONS_P] = 2;
@@ -334,12 +332,12 @@ static void make_tcphead(uint8_t *buf,
 }
 
 void NET_make_arp_answer_from_request(uint8_t *buf) {
-  uint8_t i=0;
+  uint8_t i = 0;
   make_eth(buf);
   buf[ETH_ARP_OPCODE_H_P] = ETH_ARP_OPCODE_REPLY_H_V;
   buf[ETH_ARP_OPCODE_L_P] = ETH_ARP_OPCODE_REPLY_L_V;
   /* Fill the mac addresses. */
-  while (i<6) {
+  while (i < 6) {
     buf[ETH_ARP_DST_MAC_P + i] = buf[ETH_ARP_SRC_MAC_P + i];
     buf[ETH_ARP_SRC_MAC_P + i] = macaddr[i];
     i++;
@@ -376,7 +374,7 @@ void NET_make_udp_reply_from_request(uint8_t *buf,
   uint8_t i = 0;
   uint16_t ck;
   make_eth(buf);
-  if (datalen > 220){
+  if (datalen > 220) {
     datalen = 220;
   }
   /* Total length field in the IP header must be set. */
@@ -436,7 +434,7 @@ uint16_t NET_get_tcp_data_pointer(void)
 {
   if (info_data_len) {
     return (uint16_t)TCP_SRC_PORT_H_P + info_hdr_len;
-  }else{
+  } else {
     return 0;
   }
 }
@@ -497,11 +495,11 @@ void NET_make_tcp_ack_from_any(uint8_t *buf) {
   make_eth(buf);
   /* Fill the header. */
   buf[TCP_FLAG_P] = TCP_FLAG_ACK_V;
-  if (info_data_len == 0){
+  if (info_data_len == 0) {
     /* If there is no data then we must still acknoledge one packet. */
     make_tcphead(buf, 1, 0, 1);  /* No options. */
-  }else{
-    make_tcphead(buf,info_data_len, 0, 1);  /* No options. */
+  } else {
+    make_tcphead(buf, info_data_len, 0, 1);  /* No options. */
   }
   /* total length field in the IP header must be set:
    * 20 bytes IP + 20 bytes tcp (when no options).
@@ -596,7 +594,7 @@ void NET_make_arp_request(uint8_t *buf, uint8_t *server_ip) {
   ENC28J60_PacketSend(42, buf);
 }
 
-uint8_t NET_arp_packet_is_myreply_arp (uint8_t *buf) {
+uint8_t NET_arp_packet_is_myreply_arp(uint8_t *buf) {
   uint8_t i;
   /* If packet type is not arp packet exit from function. */
   if (buf[ETH_TYPE_H_P] != ETHTYPE_ARP_H_V ||
@@ -671,8 +669,7 @@ void NET_tcp_client_send_packet(uint8_t *buf,
     /* 24 bytes. */
     buf[TCP_HEADER_LEN_P] = 0x60;
     dlength += 4;
-  }
-  else{
+  } else {
     /* no options, 20 bytes. */
     buf[TCP_HEADER_LEN_P] = 0x50;
   }
